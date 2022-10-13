@@ -7,10 +7,10 @@ phases:
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPOSITORY
       - |
         if expr "${FOLDER_PATH}" : ".*client*" ; then
-          sed -i "s|<SERVER_ALB_URL>|$SERVER_ALB_URL|g" ./application-code/client/src/services/RestServices.js
+          sed -i "s|<SERVER_ALB_URL>|$SERVER_ALB_URL|g" ./client/src/services/RestServices.js
         else
-          sed -i "s|DYNAMODB_TABLE|$DYNAMODB_TABLE|g" ./application-code/server/src/app.js
-          sed -i "s|<SERVER_ALB_URL>|$SERVER_ALB_URL|g" ./application-code/server/src/swagger/swagger.js
+          sed -i "s|DYNAMODB_TABLE|$DYNAMODB_TABLE|g" ./server/src/app.js
+          sed -i "s|<SERVER_ALB_URL>|$SERVER_ALB_URL|g" ./server/src/swagger/swagger.js
         fi
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:=latest}
@@ -23,7 +23,7 @@ phases:
       - docker tag $REPO_URL $REPO_URL:$IMAGE_TAG
       - docker push $REPO_URL:$IMAGE_TAG
       - mkdir artifacts
-      - cp ./application-code/client/templates/imagedefinition.json artifacts/imagedefinition.json
+      - cp ./client/templates/imagedefinition.json artifacts/imagedefinition.json
       - sed -i "s|<CONTAINER_NAME>|$CONTAINER_NAME|g" artifacts/imagedefinition.json
       - sed -i "s|<REPO_URL>|$REPO_URL:$IMAGE_TAG|g" artifacts/imagedefinition.json
       - cat artifacts/imagedefinition.json
